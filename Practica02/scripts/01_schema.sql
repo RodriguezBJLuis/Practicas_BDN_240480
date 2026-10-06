@@ -1,0 +1,19 @@
+CREATE DATABASE IF NOT EXISTS db_test CHARACTER SET utf8mb4;
+USE db_test;
+CREATE TABLE IF NOT EXISTS tb_logs (
+ id INT AUTO_INCREMENT PRIMARY KEY, table_affected VARCHAR(50), operation VARCHAR(20),
+ db_user VARCHAR(100), description TEXT, operation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+ status TINYINT DEFAULT 1
+);
+CREATE TABLE IF NOT EXISTS tb_users (
+ id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(50), last_name VARCHAR(50),
+ email VARCHAR(100), nickname VARCHAR(50), password_hash VARCHAR(255),
+ status VARCHAR(20) DEFAULT 'active', created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+ last_login DATETIME, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ deleted_at DATETIME
+);
+CREATE TABLE IF NOT EXISTS tb_products (
+ id INT PRIMARY KEY, sku VARCHAR(30) NOT NULL UNIQUE, name VARCHAR(200) NOT NULL,
+ description TEXT, current_price DECIMAL(12,2) NOT NULL, current_stock INT NOT NULL,
+ status BIT(1) DEFAULT b'1', creation_date DATETIME, last_update DATETIME
+);
