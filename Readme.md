@@ -1,11 +1,14 @@
-# Practicas de la Asignatura Optica 1: Bases de Datos en la nube
-## ING. en Tecnologias de la informacion e innovacion digital
-## Docente: M.T.I. Marco A. Ramirez Hernandez
+# Prácticas de la Asignatura de Bases de Datos en la Nube
+## Ingeniería en Tecnologías de la Información e Innovación Digital
+Docente: M.T.I. Marco A. Ramírez Hernández  
+Alumno: José Luis — matrícula 240480  
+GitHub: RodriguezBJLuis — 240480@utxicotepec.edu.mx  
 Periodo: Septiembre - Diciembre 2026
 
----
-
-|ID|Numero de Practica| Nombre de la Practica|Potenciador|Estatus|
+| No. | Nombre | Descripción | Potenciador | Estatus |
 |---|---|---|---|---|
-|1.|Practica 02|Conexion Remota en MySQL|42| Concluida ✅|
-|2.|Conexiones  Remotas para Bases de datos SQL|Crear y admnistrar usuarios y privilegios para conexiones desde internet o redes locales|60|Concluida ✅|
+| 2 | [Conexiones Remotas a Bases de Datos SQL](Practica02/readme.md) | Usuarios, roles, carga de 5000 productos y bitácora | Por confirmar | Scripts preparados; ejecución pendiente |
+| 3 | [Manipulación de Datos y Conexiones Remotas](Practica03/readme.md) | Relaciones, triggers, procedimiento, función y evento | Por confirmar | Scripts preparados; ejecución pendiente |
+
+Ramas: main integra las prácticas; Practica02 conserva su etapa; Practica03 agrega la siguiente.
+Se conserva el historial previo. Los commits usan título de práctica y cuerpo add: como la referencia.
