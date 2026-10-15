@@ -60,3 +60,26 @@ SET DEFAULT ROLE 'seller' TO 'adrian.gonzalez'@'%';
 -- Rol sin privilegios para probar el rechazo de operaciones.
 GRANT 'user_not_registered' TO 'ivan.ojeda'@'%';
 SET DEFAULT ROLE 'user_not_registered' TO 'ivan.ojeda'@'%';
+/*==============================================================================*/
+/*BUYER*/
+/*==============================================================================*/
+
+GRANT SELECT, INSERT UPDATE
+ON db_test.tbd_carts
+TO 'buyer';
+
+GRANT SELECT, INSERT
+ON db_test.tbd_carts_items
+TO 'buyer';
+
+GRANT SELECT, INSERT UPDATE
+ON db_test.tbd_buyer_orders
+TO 'buyer';
+
+GRANT SELECT, INSERT UPDATE
+ON db_test.tbd_carts_items
+TO 'buyer';
+
+GRANT SELECT, INSERT UPDATE
+ON db_test.tbd_users_wishlist_products 
+TO 'buyer';
