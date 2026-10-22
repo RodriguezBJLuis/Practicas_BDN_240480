@@ -1,0 +1,1 @@
+{"table":"tb_buyer_orders","columns":["ID","seller_ID","subtotal","shipping_cost","fulfillment_status","status","creation_date","last_update"],"maskedColumns":[],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}

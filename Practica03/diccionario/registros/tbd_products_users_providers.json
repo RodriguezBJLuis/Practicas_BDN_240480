@@ -1,0 +1,1 @@
+{"table":"tbd_products_users_providers","columns":["id","product_id","provider_user_id","provider_sku","unit_cost","lead_time_days","is_primary","status","created_at","updated_at"],"maskedColumns":[],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}

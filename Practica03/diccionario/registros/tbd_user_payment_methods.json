@@ -1,0 +1,1 @@
+{"table":"tbd_user_payment_methods","columns":["ID","user_ID","payment_method_type_ID","provider","provider_method_ref","label","last_four","is_default","status","creation_date","last_update"],"maskedColumns":["label","last_four","provider_method_ref"],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}

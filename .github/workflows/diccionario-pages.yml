@@ -35,6 +35,8 @@ jobs:
           cp Practica03/diccionario/styles.css _site/diccionario/
           cp Practica03/diccionario/app.js _site/diccionario/
           cp Practica03/diccionario/data.js _site/diccionario/
+          cp Practica03/diccionario/records.js _site/diccionario/
+          cp -R Practica03/diccionario/registros _site/diccionario/
           touch _site/.nojekyll
           printf '%s' '<!doctype html><html lang="es"><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=./diccionario/"><title>db_test · Diccionario</title><a href="./diccionario/">Abrir diccionario interactivo de db_test</a></html>' > _site/index.html
       - name: Configurar Pages

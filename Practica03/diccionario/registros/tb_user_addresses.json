@@ -1,0 +1,1 @@
+{"table":"tb_user_addresses","columns":["ID","user_ID","address_label","recipient_name","recipient_phone","delivery_instructions","latitude","longitude","is_default","status","creation_date","last_update"],"maskedColumns":["address_label","delivery_instructions","latitude","longitude","recipient_name","recipient_phone"],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}

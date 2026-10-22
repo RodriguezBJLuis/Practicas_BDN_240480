@@ -1,0 +1,1 @@
+{"table":"tb_people","columns":["id","user_id","first_name","last_name","second_last_name","birth_date","gender","phone","nationality","status","creation_date","last_update"],"maskedColumns":["birth_date","first_name","gender","last_name","nationality","phone","second_last_name"],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}

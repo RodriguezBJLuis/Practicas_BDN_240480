@@ -5,7 +5,7 @@
   <meta name="description" content="Diccionario interactivo de db_test: explora 128 campos, 16 tablas y 45 triggers de MySQL.">
   <meta name="theme-color" content="#19283d"><title>db_test · Atlas del diccionario</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2319283d'/%3E%3Ctext x='7' y='28' fill='%238adbc5' font-family='sans-serif' font-size='24'%3Ed%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css"><script src="data.js" defer></script><script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css"><script src="data.js" defer></script><script src="app.js" defer></script><script src="records.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -16,9 +16,10 @@
   <nav>
     <a href="#campos" data-view="campos"><span>01</span> Explorar campos <b>↗</b></a>
     <a href="#tablas" data-view="tablas"><span>02</span> Diccionario completo <b>↗</b></a>
-    <a href="#triggers" data-view="triggers"><span>03</span> Trazabilidad <b>↗</b></a>
-    <a href="#modelo" data-view="modelo"><span>04</span> Modelo relacional <b>↗</b></a>
-    <a href="#conceptos" data-view="conceptos"><span>05</span> Entender conceptos <b>↗</b></a>
+    <a href="#registros" data-view="registros"><span>03</span> Registros por tabla <b>↗</b></a>
+    <a href="#triggers" data-view="triggers"><span>04</span> Trazabilidad <b>↗</b></a>
+    <a href="#modelo" data-view="modelo"><span>05</span> Modelo relacional <b>↗</b></a>
+    <a href="#conceptos" data-view="conceptos"><span>06</span> Entender conceptos <b>↗</b></a>
   </nav>
   <div class="sidebar-note"><span class="small-icon">↳</span><h2>Del esquema<br>al significado.</h2><p>Un lugar para entender los datos, sus relaciones y sus reglas.</p><div class="sidebar-foot">CORTE DOCUMENTAL<time datetime="2026-10-21">21 de octubre de 2026</time></div></div>
 </aside>
@@ -43,6 +44,21 @@
       <div class="section-controls"><label>Ir a una tabla<select id="jump-table"></select></label><button id="expand-tables" class="secondary">Expandir todas</button><button id="collapse-tables" class="secondary">Contraer todas</button></div>
       <div id="table-list"></div>
     </section>
+    <section class="view" id="view-registros" hidden aria-labelledby="title-registros">
+      <div class="eyebrow">EL CONTENIDO DE TUS TABLAS</div>
+      <h1 id="title-registros">Del campo<br><em>al registro.</em></h1>
+      <p class="lead">Consulta las filas de cada tabla, busca valores y recorre todos los registros de la copia publicada.</p>
+      <div class="notice records-notice"><strong>Datos anonimizados.</strong> Se conservan los identificadores y las relaciones. Las contraseñas están ocultas; los datos personales y las referencias de pago están sustituidos. Es una copia de consulta, no una conexión en vivo.</div>
+      <div class="records-meta"><span id="records-snapshot">Cargando la copia de registros…</span><span id="records-global"></span></div>
+      <div id="records-inventory" class="records-inventory" aria-label="Tablas y cantidades de registros"></div>
+      <div class="filter-panel records-filters">
+        <div class="records-filter-row"><label>Tabla<select id="records-table"></select></label><label class="searchbox"><span aria-hidden="true">⌕</span><input id="records-search" type="search" aria-label="Buscar registros" placeholder="Busca un valor dentro de esta tabla…"></label><label>Filas por página<select id="records-size"><option value="25">25 filas</option><option value="50">50 filas</option><option value="100">100 filas</option></select></label></div>
+      </div>
+      <div class="results-top"><p id="records-count" role="status" aria-live="polite"></p><span id="records-masked"></span></div>
+      <div id="records-output" aria-busy="false"></div>
+      <div class="pagination" id="records-pagination"><button id="records-prev" class="secondary">← Anterior</button><span id="records-page"></span><button id="records-next" class="secondary">Siguiente →</button></div>
+    </section>
+
     <section class="view" id="view-triggers" hidden aria-labelledby="title-triggers">
       <div class="eyebrow">TRAZABILIDAD DEL MODELO</div><h1 id="title-triggers">Cada cambio<br><em>deja una huella.</em></h1><p class="lead">45 triggers reales. Consulta qué evento los activa, en qué momento se ejecutan y qué información registran.</p>
       <div class="notice"><strong>Sobre la consigna de 42 triggers.</strong> La base contiene 45: tres por cada una de las 15 tablas auditadas. Todos son AFTER y escriben en tb_logs. Ninguno transforma DELETE en baja lógica.</div>

@@ -1,0 +1,1 @@
+{"table":"tbd_order_items","columns":["ID","seller_order_ID","product_ID","provider_ID","product_name","quantity","unit_price","subtotal","creation_date"],"maskedColumns":[],"capturedAt":"2026-10-22T14:28:38-06:00","rows":[]}
