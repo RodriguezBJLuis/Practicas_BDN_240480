@@ -1,0 +1,48 @@
+name: Publicar diccionario de Practica03
+
+on:
+  push:
+    branches: [Practica03]
+    paths:
+      - 'Practica03/diccionario/**'
+      - '.github/workflows/diccionario-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diccionario-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Obtener Practica03
+        uses: actions/checkout@v6
+      - name: Preparar solo el diccionario publico
+        run: |
+          mkdir -p _site/diccionario
+          cp Practica03/diccionario/index.html _site/diccionario/
+          cp Practica03/diccionario/styles.css _site/diccionario/
+          cp Practica03/diccionario/app.js _site/diccionario/
+          cp Practica03/diccionario/data.js _site/diccionario/
+          touch _site/.nojekyll
+          printf '%s' '<!doctype html><html lang="es"><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=./diccionario/"><title>db_test · Diccionario</title><a href="./diccionario/">Abrir diccionario interactivo de db_test</a></html>' > _site/index.html
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+      - name: Empaquetar el sitio
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
