@@ -1,0 +1,319 @@
+Project db_test {
+  database_type: 'MySQL'
+  Note: 'Modelo fisico consultado el 2026-10-21: 16 tablas y 45 triggers. Solo tb_users tiene deleted_at. Se conservan nombres, tipos e indices reales; no se agregan tablas de pagos inexistentes.'
+}
+
+Enum fulfillment_status {
+  Pending
+  Accepted
+  Preparing
+  Sent
+  Delivered
+  Canceled
+  Returned
+}
+
+// SEGURIDAD Y PERSONAS
+
+Table tb_users {
+  id int [pk, increment, not null]
+  email varchar(100) [null]
+  nickname varchar(50) [null]
+  password varchar(255) [null]
+  status varchar(20) [null, default: 'active']
+  creation_date datetime [null, default: `CURRENT_TIMESTAMP`]
+  last_date datetime [null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+  last_log datetime [null]
+  deleted_at datetime [null]
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_people {
+  id int [pk, increment, not null]
+  user_id int [not null]
+  first_name varchar(100) [not null]
+  last_name varchar(100) [not null]
+  second_last_name varchar(100) [null]
+  birth_date date [null]
+  gender varchar(30) [null]
+  phone varchar(25) [null]
+  nationality varchar(80) [null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_id [unique, name: 'uk_people_user']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_logs {
+  id int [pk, increment, not null]
+  table_affected varchar(50) [null]
+  operation varchar(20) [null]
+  db_user varchar(100) [null]
+  description text [null]
+  operation_date datetime [null, default: `CURRENT_TIMESTAMP`]
+  status tinyint [null, default: 1]
+
+  Note: 'Sin triggers; recibe los registros de auditoria'
+}
+
+// CATALOGO Y PROVEEDORES
+
+Table tbc_categories {
+  id int [pk, increment, not null]
+  name varchar(100) [not null]
+  description text [null]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    name [unique, name: 'uq_tbc_categories_name']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_products {
+  id int [pk, increment, not null]
+  SKU varchar(20) [not null]
+  nombre_producto varchar(150) [not null]
+  descripcion text [null]
+  current_price decimal(10,2) [not null]
+  current_stock int [not null]
+  status tinyint [not null]
+  creation_date datetime [not null]
+  last_update datetime [not null]
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_products_categories {
+  id int [pk, increment, not null]
+  product_id int [not null]
+  category_id int [not null]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    category_id [name: 'idx_product_categories_category']
+    (product_id, category_id) [unique, name: 'uq_product_category']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_products_users_providers {
+  id int [pk, increment, not null]
+  product_id int [not null]
+  provider_user_id int [not null]
+  provider_sku varchar(100) [null]
+  unit_cost decimal(10,2) [null]
+  lead_time_days "smallint unsigned" [null]
+  is_primary tinyint [not null, default: 0]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    provider_user_id [name: 'idx_product_providers_user']
+    (product_id, provider_user_id) [unique, name: 'uq_product_provider']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// PEDIDOS
+
+Table tb_buyer_orders {
+  ID "int unsigned" [pk, increment, not null]
+  seller_ID int [not null]
+  subtotal decimal(12,2) [not null, default: 0.00]
+  shipping_cost decimal(12,2) [not null, default: 0.00]
+  fulfillment_status fulfillment_status [not null, default: 'Pending']
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    seller_ID [name: 'seller_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: tb_buyer_orders_chk_1: (`subtotal` >= 0); tb_buyer_orders_chk_2: (`shipping_cost` >= 0)'
+}
+
+Table tbd_order_items {
+  ID "int unsigned" [pk, increment, not null]
+  seller_order_ID "int unsigned" [not null]
+  product_ID int [not null]
+  provider_ID int [not null]
+  product_name varchar(255) [not null]
+  quantity "int unsigned" [not null]
+  unit_price decimal(12,2) [not null]
+  subtotal decimal(12,2) [null, note: 'GENERATED ALWAYS AS ((`quantity` * `unit_price`)) STORED']
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    product_ID [name: 'product_ID']
+    provider_ID [name: 'provider_ID']
+    seller_order_ID [name: 'seller_order_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: tbd_order_items_chk_1: (`quantity` > 0); tbd_order_items_chk_2: (`unit_price` >= 0)'
+}
+
+// CARRITOS Y DESEOS
+
+Table tb_carts {
+  ID "int unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  status bit(1) [null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_ID [unique, name: 'uk_cart_user']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_carts_items {
+  cart_ID "int unsigned" [not null]
+  provider_ID int [not null]
+  product_ID int [not null]
+  quantity "int unsigned" [not null, default: 1]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (cart_ID, provider_ID, product_ID) [pk]
+    product_ID [name: 'product_ID']
+    provider_ID [name: 'provider_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: chk_cart_quantity: (`quantity` > 0)'
+}
+
+Table tbd_users_wishlist_products {
+  user_ID int [not null]
+  product_ID int [not null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [not null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    product_ID [name: 'fk_products3']
+    (user_ID, product_ID) [pk]
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// DIRECCIONES
+
+Table tb_user_addresses {
+  ID "bigint unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  address_label varchar(100) [not null]
+  recipient_name varchar(150) [null]
+  recipient_phone varchar(25) [null]
+  delivery_instructions varchar(500) [null]
+  latitude decimal(10,7) [null]
+  longitude decimal(10,7) [null]
+  is_default tinyint(1) [not null, default: 0]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_ID [name: 'idx_user_addresses']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: chk_coordinates: (((`latitude` is null) and (`longitude` is null)) or ((`latitude` is not null) and (`longitude` is not null))); chk_latitude: (`latitude` between -(90) and 90); chk_longitude: (`longitude` between -(180) and 180)'
+}
+
+Table tbd_address_components {
+  ID "bigint unsigned" [pk, increment, not null]
+  address_ID "bigint unsigned" [not null]
+  value varchar(255) [not null]
+  component_type varchar(50) [not null]
+  status bit(1) [not null, default: `b'1'`]
+  address_sup_ID "bigint unsigned" [null]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    (address_ID, address_sup_ID) [name: 'idx_address_parent']
+    (address_ID, ID) [unique, name: 'uk_address_component']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// METODOS DE PAGO
+
+Table tbc_payment_methods_types {
+  ID "int unsigned" [pk, increment, not null]
+  code varchar(30) [not null]
+  description text [not null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    code [unique, name: 'code_UNIQUE']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_user_payment_methods {
+  ID "bigint unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  payment_method_type_ID "int unsigned" [not null]
+  provider varchar(60) [not null]
+  provider_method_ref varchar(255) [not null]
+  label varchar(100) [null]
+  last_four char(4) [null]
+  is_default tinyint(1) [not null, default: 0]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    payment_method_type_ID [name: 'payment_method_type_ID']
+    (provider, provider_method_ref) [unique, name: 'uk_provider_method']
+    user_ID [name: 'user_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// RELACIONES FISICAS (incluida la referencia compuesta de direcciones)
+
+Ref tb_buyer_orders_ibfk_1: tb_buyer_orders.seller_ID > tb_users.id [delete: no action, update: no action]
+Ref tb_carts_ibfk_1: tb_carts.user_ID - tb_users.id [delete: no action, update: no action]
+Ref fk_people_user: tb_people.user_id - tb_users.id [delete: restrict, update: cascade]
+Ref fk_addresses_users: tb_user_addresses.user_ID > tb_users.id [delete: no action, update: no action]
+Ref fk_component_address: tbd_address_components.address_ID > tb_user_addresses.ID [delete: restrict, update: no action]
+Ref fk_component_parent: tbd_address_components.(address_ID, address_sup_ID) > tbd_address_components.(address_ID, ID) [delete: restrict, update: no action]
+Ref tbd_carts_items_ibfk_1: tbd_carts_items.cart_ID > tb_carts.ID [delete: no action, update: no action]
+Ref tbd_carts_items_ibfk_2: tbd_carts_items.provider_ID > tbd_products_users_providers.provider_user_id [delete: no action, update: no action]
+Ref tbd_carts_items_ibfk_3: tbd_carts_items.product_ID > tbd_products_users_providers.product_id [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_1: tbd_order_items.seller_order_ID > tb_buyer_orders.ID [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_2: tbd_order_items.product_ID > tbd_products_users_providers.product_id [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_3: tbd_order_items.provider_ID > tbd_products_users_providers.provider_user_id [delete: no action, update: no action]
+Ref fk_product_categories_category: tbd_products_categories.category_id > tbc_categories.id [delete: restrict, update: cascade]
+Ref fk_product_categories_product: tbd_products_categories.product_id > tb_products.id [delete: restrict, update: cascade]
+Ref fk_product_providers_product: tbd_products_users_providers.product_id > tb_products.id [delete: restrict, update: cascade]
+Ref fk_product_providers_user: tbd_products_users_providers.provider_user_id > tb_users.id [delete: restrict, update: cascade]
+Ref tbd_user_payment_methods_ibfk_1: tbd_user_payment_methods.user_ID > tb_users.id [delete: no action, update: no action]
+Ref tbd_user_payment_methods_ibfk_2: tbd_user_payment_methods.payment_method_type_ID > tbc_payment_methods_types.ID [delete: no action, update: no action]
+Ref fk_products3: tbd_users_wishlist_products.product_ID > tb_products.id [delete: no action, update: no action]
+Ref fk_user2: tbd_users_wishlist_products.user_ID > tb_users.id [delete: no action, update: no action]
