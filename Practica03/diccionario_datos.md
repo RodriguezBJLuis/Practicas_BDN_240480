@@ -1,11 +1,69 @@
-# Diccionario de Datos — db_test
+# db_test · Diccionario de datos
 
-**Proyecto:** Base de Datos en la Nube  
-**Motor:** MySQL 8.0  
-**Fecha de verificación:** 21 de octubre de 2026  
-**Alcance físico:** 16 tablas, 128 columnas y 45 triggers.
+![db_test: 16 tablas, 128 columnas, 45 triggers y 6 dominios](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/portada.svg)
 
-## Fuente, alcance y criterios de interpretación
+**BASE DE DATOS EN LA NUBE · PRÁCTICA 03**  
+**Edición documental 3.1 · Esquema físico verificado**
+
+Referencia técnica del modelo de comercio electrónico: desde las credenciales y el catálogo hasta los pedidos, las direcciones y la trazabilidad de cada operación.
+
+| Tablas físicas | Columnas documentadas | Triggers de auditoría | Áreas funcionales |
+| :---: | :---: | :---: | :---: |
+| **16** | **128** | **45** | **6** |
+
+| Control del documento | Detalle |
+| --- | --- |
+| Proyecto | `db_test` — Base de Datos en la Nube |
+| Entrega | Práctica 03 |
+| Motor | MySQL 8.0 |
+| Verificación | 21 de octubre de 2026 |
+| Edición | 3.1 — navegación visual y consultas por evento |
+| Fuente técnica | Metadatos de `information_schema` y definiciones físicas verificadas |
+| Formato | Markdown UTF-8 compatible con GitHub y GitHub Pages |
+
+> **Lectura del modelo real.** El servidor contiene **45 triggers**, aunque la consigna menciona 42. Se incluyen los 45. Los nombres y restricciones se documentan tal como existen; no se presentan tablas inexistentes como si estuvieran implementadas.
+
+<a id="inicio"></a>
+
+### Explorar por área
+
+[![Seguridad y personas](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-seguridad-personas.svg)](#seguridad-personas) [![Catálogo y proveedores](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-catalogo-proveedores.svg)](#catalogo-proveedores) [![Pedidos y ventas](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-pedidos.svg)](#pedidos)  
+[![Carritos y deseos](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-carritos-deseos.svg)](#carritos-deseos) [![Direcciones](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-direcciones.svg)](#direcciones) [![Métodos de pago](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/nav-pagos.svg)](#pagos)  
+
+**Elige un área y expande una tabla.** Cada ficha conserva las ocho columnas del diccionario. Usa los enlaces de regreso para cambiar de sección.
+
+## Acceso rápido
+
+- [Guía de lectura y alcance](#guia-de-lectura)
+- [Inventario de las 16 tablas](#inventario)
+- [Diccionario completo por columna](#diccionario)
+  - [01 · Seguridad, personas y trazabilidad](#seguridad-personas)
+  - [02 · Catálogo y proveedores](#catalogo-proveedores)
+  - [03 · Pedidos y líneas de venta](#pedidos)
+  - [04 · Carritos y listas de deseos](#carritos-deseos)
+  - [05 · Direcciones y componentes](#direcciones)
+  - [06 · Tipos e instrumentos de pago](#pagos)
+- [Observaciones de integridad](#integridad)
+- [Documentación de los 42 Triggers — inventario real: 45](#triggers)
+- [Consultas de verificación](#verificacion)
+
+## Mapa del modelo · Archify
+
+![ERD completo de db_test: 16 tablas, claves y relaciones](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/diagrama_erd.png)
+
+**Cómo leerlo:** los bloques de color agrupan dominios. **PK** identifica la clave primaria, **FK** una referencia y **UK** la pertenencia a un índice único, que puede ser compuesto. Las líneas muestran las relaciones físicas; las referencias hacia índices no únicos de ofertas requieren la interpretación explicada en las observaciones de integridad.
+
+> La autorrelación de `tbd_address_components` se expresa con la FK compuesta `(address_ID, address_sup_ID) → (address_ID, ID)`. La imagen no dibuja ese bucle. El tipo `fulfillment_status` es `ENUM('Pending','Accepted','Preparing','Sent','Delivered','Canceled','Returned')`.
+
+### Una consulta completa, en esta página
+
+El contenido íntegro está disponible aquí. Expande la ficha de una tabla para ver todas sus columnas, índices, relaciones y restricciones. Al final encontrarás los 45 triggers y las consultas de comprobación. No necesitas descargar ningún adjunto.
+
+---
+
+<a id="guia-de-lectura"></a>
+
+## Guía de lectura, alcance y criterios de interpretación
 
 Este documento describe el esquema físico consultado directamente en `information_schema` de `db_test`: columnas, nulabilidad, valores predeterminados, índices, claves foráneas, restricciones CHECK y cuerpos de triggers. Las descripciones funcionales se interpretan a partir de esos objetos; no convierten una convención de aplicación en una restricción de MySQL. No incluye registros de personas, contraseñas, tokens de pago ni datos de conexión.
 
@@ -30,30 +88,43 @@ Los nombres solicitados como ejemplos se corresponden con los nombres físicos s
 
 **Estados y baja lógica:** solo tb_users dispone de deleted_at. Un status inactivo no es un DELETE físico. Los 45 triggers inspeccionados son de trazabilidad AFTER; ninguno convierte DELETE en Soft Delete ni implementa cálculos de inventario o totales.
 
+<a id="inventario"></a>
+
 ## Inventario de tablas
 
 | Tabla | Columnas | Triggers | Propósito |
 | --- | ---: | ---: | --- |
-| `tb_users` | 9 | 3 | Almacena las cuentas funcionales del comercio: credenciales, correo, alias y estado de acceso. |
-| `tb_people` | 12 | 3 | Separa los datos personales y de contacto de las credenciales de tb_users. |
-| `tb_logs` | 7 | 0 | Centraliza las evidencias de altas, cambios y bajas físicas generadas por los triggers. |
-| `tbc_categories` | 6 | 3 | Define el catálogo de categorías para organizar los productos. |
-| `tb_products` | 9 | 3 | Mantiene el catálogo maestro de productos, con SKU, nombre comercial, descripción, precio vigente y existencias. |
-| `tbd_products_categories` | 6 | 3 | Implementa la relación muchos a muchos entre productos y categorías. |
-| `tbd_products_users_providers` | 10 | 3 | Relaciona productos con usuarios proveedores e incorpora condiciones de suministro: código del proveedor, costo unitario, plazo de entrega y condición de proveedor principal. |
-| `tb_buyer_orders` | 8 | 3 | Representa la cabecera de pedidos con el usuario identificado como seller_ID, subtotal, costo de envío y estado de cumplimiento. |
-| `tbd_order_items` | 9 | 3 | Registra las líneas de un pedido: producto, proveedor, nombre histórico del producto, cantidad y precio aplicado. |
-| `tb_carts` | 5 | 3 | Mantiene la cabecera del carrito de cada usuario. |
-| `tbd_carts_items` | 5 | 3 | Almacena los productos del carrito diferenciados por proveedor. |
-| `tbd_users_wishlist_products` | 5 | 3 | Implementa la lista de deseos como asociación entre usuario y producto. |
-| `tb_user_addresses` | 12 | 3 | Conserva las direcciones etiquetadas de cada usuario, los datos de quien recibe, las instrucciones y las coordenadas de entrega. |
-| `tbd_address_components` | 8 | 3 | Descompone una dirección en componentes tipificados, por ejemplo calle, colonia o municipio. |
-| `tbc_payment_methods_types` | 6 | 3 | Define los tipos de métodos de pago mediante un código único y una descripción. |
-| `tbd_user_payment_methods` | 11 | 3 | Guarda referencias a instrumentos de pago administrados por un proveedor externo, junto con etiqueta, últimos cuatro caracteres y preferencia del usuario. |
+| [`tb_users`](#tabla-tb-users) | 9 | 3 | Almacena las cuentas funcionales del comercio: credenciales, correo, alias y estado de acceso. |
+| [`tb_people`](#tabla-tb-people) | 12 | 3 | Separa los datos personales y de contacto de las credenciales de tb_users. |
+| [`tb_logs`](#tabla-tb-logs) | 7 | 0 | Centraliza las evidencias de altas, cambios y bajas físicas generadas por los triggers. |
+| [`tbc_categories`](#tabla-tbc-categories) | 6 | 3 | Define el catálogo de categorías para organizar los productos. |
+| [`tb_products`](#tabla-tb-products) | 9 | 3 | Mantiene el catálogo maestro de productos, con SKU, nombre comercial, descripción, precio vigente y existencias. |
+| [`tbd_products_categories`](#tabla-tbd-products-categories) | 6 | 3 | Implementa la relación muchos a muchos entre productos y categorías. |
+| [`tbd_products_users_providers`](#tabla-tbd-products-users-providers) | 10 | 3 | Relaciona productos con usuarios proveedores e incorpora condiciones de suministro: código del proveedor, costo unitario, plazo de entrega y condición de proveedor principal. |
+| [`tb_buyer_orders`](#tabla-tb-buyer-orders) | 8 | 3 | Representa la cabecera de pedidos con el usuario identificado como seller_ID, subtotal, costo de envío y estado de cumplimiento. |
+| [`tbd_order_items`](#tabla-tbd-order-items) | 9 | 3 | Registra las líneas de un pedido: producto, proveedor, nombre histórico del producto, cantidad y precio aplicado. |
+| [`tb_carts`](#tabla-tb-carts) | 5 | 3 | Mantiene la cabecera del carrito de cada usuario. |
+| [`tbd_carts_items`](#tabla-tbd-carts-items) | 5 | 3 | Almacena los productos del carrito diferenciados por proveedor. |
+| [`tbd_users_wishlist_products`](#tabla-tbd-users-wishlist-products) | 5 | 3 | Implementa la lista de deseos como asociación entre usuario y producto. |
+| [`tb_user_addresses`](#tabla-tb-user-addresses) | 12 | 3 | Conserva las direcciones etiquetadas de cada usuario, los datos de quien recibe, las instrucciones y las coordenadas de entrega. |
+| [`tbd_address_components`](#tabla-tbd-address-components) | 8 | 3 | Descompone una dirección en componentes tipificados, por ejemplo calle, colonia o municipio. |
+| [`tbc_payment_methods_types`](#tabla-tbc-payment-methods-types) | 6 | 3 | Define los tipos de métodos de pago mediante un código único y una descripción. |
+| [`tbd_user_payment_methods`](#tabla-tbd-user-payment-methods) | 11 | 3 | Guarda referencias a instrumentos de pago administrados por un proveedor externo, junto con etiqueta, últimos cuatro caracteres y preferencia del usuario. |
 
-## Diccionario por tabla
+<a id="diccionario"></a>
 
-### 1. `tb_users`
+## Diccionario completo por columna
+
+<a id="seguridad-personas"></a>
+
+### 01 · Seguridad, personas y trazabilidad
+
+![Seguridad y personas — 3 tablas · 28 columnas · 6 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/seguridad-personas.svg)
+
+<a id="tabla-tb-users"></a>
+
+<details open>
+<summary><strong>1. tb_users</strong> · 9 columnas · 3 triggers</summary>
 
 Almacena las cuentas funcionales del comercio: credenciales, correo, alias y estado de acceso. Es la entidad referenciada por personas, carritos, proveedores, pedidos y métodos de pago. Estas cuentas de aplicación son distintas de los usuarios del servidor MySQL.
 
@@ -81,7 +152,15 @@ Almacena las cuentas funcionales del comercio: credenciales, correo, alias y est
 
 No tiene claves foráneas salientes. Esto no excluye que otras tablas la referencien.
 
-### 2. `tb_people`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tb-people"></a>
+
+<details>
+<summary><strong>2. tb_people</strong> · 12 columnas · 3 triggers</summary>
 
 Separa los datos personales y de contacto de las credenciales de tb_users. Tiene exactamente 12 columnas; status, creation_date y last_update constituyen los tres campos de auditoría. Cada persona pertenece a un usuario y cada usuario admite como máximo un perfil de persona.
 
@@ -113,7 +192,15 @@ Separa los datos personales y de contacto de las credenciales de tb_users. Tiene
 
 - `fk_people_user`: (`user_id`) → `tb_users` (`id`); ON DELETE `RESTRICT`; ON UPDATE `CASCADE`.
 
-### 3. `tb_logs`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tb-logs"></a>
+
+<details>
+<summary><strong>3. tb_logs</strong> · 7 columnas · 0 triggers</summary>
 
 Centraliza las evidencias de altas, cambios y bajas físicas generadas por los triggers. Conserva el nombre de la tabla, la operación, el usuario de conexión y una descripción del evento. No tiene claves foráneas hacia las entidades auditadas, de modo que la evidencia no depende de que el registro original permanezca.
 
@@ -139,7 +226,21 @@ Centraliza las evidencias de altas, cambios y bajas físicas generadas por los t
 
 No tiene claves foráneas salientes. Esto no excluye que otras tablas la referencien.
 
-### 4. `tbc_categories`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="catalogo-proveedores"></a>
+
+### 02 · Catálogo y proveedores
+
+![Catálogo y proveedores — 4 tablas · 31 columnas · 12 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/catalogo-proveedores.svg)
+
+<a id="tabla-tbc-categories"></a>
+
+<details>
+<summary><strong>4. tbc_categories</strong> · 6 columnas · 3 triggers</summary>
 
 Define el catálogo de categorías para organizar los productos. Su relación con productos se implementa mediante tbd_products_categories; no existe una columna category_id en tb_products ni una jerarquía de categorías en esta versión.
 
@@ -165,7 +266,15 @@ Define el catálogo de categorías para organizar los productos. Su relación co
 
 No tiene claves foráneas salientes. Esto no excluye que otras tablas la referencien.
 
-### 5. `tb_products`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tb-products"></a>
+
+<details>
+<summary><strong>5. tb_products</strong> · 9 columnas · 3 triggers</summary>
 
 Mantiene el catálogo maestro de productos, con SKU, nombre comercial, descripción, precio vigente y existencias. Los nombres físicos son nombre_producto y descripcion. Las categorías y los proveedores se vinculan mediante tablas de asociación independientes.
 
@@ -193,7 +302,15 @@ Mantiene el catálogo maestro de productos, con SKU, nombre comercial, descripci
 
 No tiene claves foráneas salientes. Esto no excluye que otras tablas la referencien.
 
-### 6. `tbd_products_categories`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-products-categories"></a>
+
+<details>
+<summary><strong>6. tbd_products_categories</strong> · 6 columnas · 3 triggers</summary>
 
 Implementa la relación muchos a muchos entre productos y categorías. Cuenta con identificador propio y una restricción única sobre el par producto/categoría para impedir asociaciones duplicadas.
 
@@ -221,7 +338,15 @@ Implementa la relación muchos a muchos entre productos y categorías. Cuenta co
 - `fk_product_categories_category`: (`category_id`) → `tbc_categories` (`id`); ON DELETE `RESTRICT`; ON UPDATE `CASCADE`.
 - `fk_product_categories_product`: (`product_id`) → `tb_products` (`id`); ON DELETE `RESTRICT`; ON UPDATE `CASCADE`.
 
-### 7. `tbd_products_users_providers`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-products-users-providers"></a>
+
+<details>
+<summary><strong>7. tbd_products_users_providers</strong> · 10 columnas · 3 triggers</summary>
 
 Relaciona productos con usuarios proveedores e incorpora condiciones de suministro: código del proveedor, costo unitario, plazo de entrega y condición de proveedor principal. La pareja producto/proveedor es única. No contiene una columna available_stock.
 
@@ -253,7 +378,21 @@ Relaciona productos con usuarios proveedores e incorpora condiciones de suminist
 - `fk_product_providers_product`: (`product_id`) → `tb_products` (`id`); ON DELETE `RESTRICT`; ON UPDATE `CASCADE`.
 - `fk_product_providers_user`: (`provider_user_id`) → `tb_users` (`id`); ON DELETE `RESTRICT`; ON UPDATE `CASCADE`.
 
-### 8. `tb_buyer_orders`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="pedidos"></a>
+
+### 03 · Pedidos y líneas de venta
+
+![Pedidos y ventas — 2 tablas · 17 columnas · 6 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/pedidos.svg)
+
+<a id="tabla-tb-buyer-orders"></a>
+
+<details>
+<summary><strong>8. tb_buyer_orders</strong> · 8 columnas · 3 triggers</summary>
 
 Representa la cabecera de pedidos con el usuario identificado como seller_ID, subtotal, costo de envío y estado de cumplimiento. A pesar del nombre, el esquema actual no incluye buyer_id ni una clave comercial del pedido. Sus renglones se almacenan en tbd_order_items.
 
@@ -286,7 +425,15 @@ Representa la cabecera de pedidos con el usuario identificado como seller_ID, su
 - `tb_buyer_orders_chk_1`: `(`subtotal` >= 0)`.
 - `tb_buyer_orders_chk_2`: `(`shipping_cost` >= 0)`.
 
-### 9. `tbd_order_items`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-order-items"></a>
+
+<details>
+<summary><strong>9. tbd_order_items</strong> · 9 columnas · 3 triggers</summary>
 
 Registra las líneas de un pedido: producto, proveedor, nombre histórico del producto, cantidad y precio aplicado. El subtotal es una columna generada almacenada, calculada por MySQL como cantidad por precio unitario.
 
@@ -324,7 +471,21 @@ Registra las líneas de un pedido: producto, proveedor, nombre histórico del pr
 - `tbd_order_items_chk_1`: `(`quantity` > 0)`.
 - `tbd_order_items_chk_2`: `(`unit_price` >= 0)`.
 
-### 10. `tb_carts`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="carritos-deseos"></a>
+
+### 04 · Carritos y listas de deseos
+
+![Carritos y deseos — 3 tablas · 15 columnas · 9 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/carritos-deseos.svg)
+
+<a id="tabla-tb-carts"></a>
+
+<details>
+<summary><strong>10. tb_carts</strong> · 5 columnas · 3 triggers</summary>
 
 Mantiene la cabecera del carrito de cada usuario. El índice único sobre user_ID limita a un carrito por usuario, incluso si un carrito previo está inactivo. El contenido se almacena en tbd_carts_items.
 
@@ -349,7 +510,15 @@ Mantiene la cabecera del carrito de cada usuario. El índice único sobre user_I
 
 - `tb_carts_ibfk_1`: (`user_ID`) → `tb_users` (`id`); ON DELETE `NO ACTION`; ON UPDATE `NO ACTION`.
 
-### 11. `tbd_carts_items`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-carts-items"></a>
+
+<details>
+<summary><strong>11. tbd_carts_items</strong> · 5 columnas · 3 triggers</summary>
 
 Almacena los productos del carrito diferenciados por proveedor. La clave primaria compuesta permite un solo renglón para cada combinación carrito/proveedor/producto, con cantidad estrictamente positiva.
 
@@ -381,7 +550,15 @@ Almacena los productos del carrito diferenciados por proveedor. La clave primari
 
 - `chk_cart_quantity`: `(`quantity` > 0)`.
 
-### 12. `tbd_users_wishlist_products`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-users-wishlist-products"></a>
+
+<details>
+<summary><strong>12. tbd_users_wishlist_products</strong> · 5 columnas · 3 triggers</summary>
 
 Implementa la lista de deseos como asociación entre usuario y producto. La clave primaria compuesta impide repetir el mismo producto para un mismo usuario. El estado permite marcar la asociación como activa o inactiva.
 
@@ -407,7 +584,21 @@ Implementa la lista de deseos como asociación entre usuario y producto. La clav
 - `fk_products3`: (`product_ID`) → `tb_products` (`id`); ON DELETE `NO ACTION`; ON UPDATE `NO ACTION`.
 - `fk_user2`: (`user_ID`) → `tb_users` (`id`); ON DELETE `NO ACTION`; ON UPDATE `NO ACTION`.
 
-### 13. `tb_user_addresses`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="direcciones"></a>
+
+### 05 · Direcciones y componentes
+
+![Direcciones — 2 tablas · 20 columnas · 6 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/direcciones.svg)
+
+<a id="tabla-tb-user-addresses"></a>
+
+<details>
+<summary><strong>13. tb_user_addresses</strong> · 12 columnas · 3 triggers</summary>
 
 Conserva las direcciones etiquetadas de cada usuario, los datos de quien recibe, las instrucciones y las coordenadas de entrega. Los componentes postales se descomponen en tbd_address_components.
 
@@ -445,7 +636,15 @@ Conserva las direcciones etiquetadas de cada usuario, los datos de quien recibe,
 - `chk_latitude`: `(`latitude` between -(90) and 90)`.
 - `chk_longitude`: `(`longitude` between -(180) and 180)`.
 
-### 14. `tbd_address_components`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-address-components"></a>
+
+<details>
+<summary><strong>14. tbd_address_components</strong> · 8 columnas · 3 triggers</summary>
 
 Descompone una dirección en componentes tipificados, por ejemplo calle, colonia o municipio. La referencia compuesta al componente superior establece una jerarquía cuyos padres deben pertenecer a la misma dirección. Los tipos concretos se almacenan como texto libre.
 
@@ -475,7 +674,21 @@ Descompone una dirección en componentes tipificados, por ejemplo calle, colonia
 - `fk_component_address`: (`address_ID`) → `tb_user_addresses` (`ID`); ON DELETE `RESTRICT`; ON UPDATE `NO ACTION`.
 - `fk_component_parent`: (`address_ID`, `address_sup_ID`) → `tbd_address_components` (`address_ID`, `ID`); ON DELETE `RESTRICT`; ON UPDATE `NO ACTION`.
 
-### 15. `tbc_payment_methods_types`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="pagos"></a>
+
+### 06 · Tipos e instrumentos de pago
+
+![Métodos de pago — 2 tablas · 17 columnas · 6 triggers](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/pagos.svg)
+
+<a id="tabla-tbc-payment-methods-types"></a>
+
+<details>
+<summary><strong>15. tbc_payment_methods_types</strong> · 6 columnas · 3 triggers</summary>
 
 Define los tipos de métodos de pago mediante un código único y una descripción. Se utiliza para clasificar los instrumentos registrados por los usuarios; no registra cobros ni transacciones monetarias.
 
@@ -501,7 +714,15 @@ Define los tipos de métodos de pago mediante un código único y una descripci�
 
 No tiene claves foráneas salientes. Esto no excluye que otras tablas la referencien.
 
-### 16. `tbd_user_payment_methods`
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="tabla-tbd-user-payment-methods"></a>
+
+<details>
+<summary><strong>16. tbd_user_payment_methods</strong> · 11 columnas · 3 triggers</summary>
 
 Guarda referencias a instrumentos de pago administrados por un proveedor externo, junto con etiqueta, últimos cuatro caracteres y preferencia del usuario. Su diseño utiliza una referencia del proveedor; no incluye campos específicos para PAN completo ni CVV.
 
@@ -535,6 +756,13 @@ Guarda referencias a instrumentos de pago administrados por un proveedor externo
 - `tbd_user_payment_methods_ibfk_1`: (`user_ID`) → `tb_users` (`id`); ON DELETE `NO ACTION`; ON UPDATE `NO ACTION`.
 - `tbd_user_payment_methods_ibfk_2`: (`payment_method_type_ID`) → `tbc_payment_methods_types` (`ID`); ON DELETE `NO ACTION`; ON UPDATE `NO ACTION`.
 
+
+[↑ Explorar áreas](#inicio) · [Inventario](#inventario) · [Consultar triggers](#triggers)
+
+</details>
+
+<a id="integridad"></a>
+
 ## Observaciones de integridad y alcance funcional
 
 1. **Correo y SKU sin unicidad física.** tb_users.email, tb_users.nickname y tb_products.SKU no tienen índices UNIQUE. El formato de email tampoco está impuesto por una restricción de columna. La validación del procedimiento de registro no sustituye una restricción única frente a escrituras concurrentes o inserciones directas.
@@ -555,11 +783,103 @@ Guarda referencias a instrumentos de pago administrados por un proveedor externo
 
 9. **Fechas y moneda.** DATETIME no conserva zona horaria. Los importes no llevan una columna de moneda, por lo que su unidad y reglas de impuestos deben establecerse en la aplicación. DEFAULT CURRENT_TIMESTAMP no implica ON UPDATE salvo que esté indicado expresamente.
 
+<a id="triggers"></a>
+
 ## Documentación de los 42 Triggers
+
+### Inventario completo de trazabilidad · 45 objetos
 
 **Aclaración del título solicitado:** el inventario real contiene **45 triggers**, no 42: 15 tablas auditadas × 3 eventos. Se conserva el encabezado solicitado y se documentan los 45 objetos verificados, sin omitir los tres de tb_people. tb_logs no tiene triggers.
 
 Todos los triggers son **FOR EACH ROW** y se ejecutan **AFTER**. Cada uno inserta en tb_logs el nombre de tabla, el evento, USER() y una descripción. operation_date se completa mediante su DEFAULT CURRENT_TIMESTAMP. El estado del log queda en 1, por valor explícito o predeterminado. En tablas InnoDB el registro de auditoría forma parte de la misma transacción: no constituye evidencia autónoma de una operación posteriormente revertida.
+
+### Consultar por operación
+
+[![INSERT](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/evento-insert.svg)](#evento-insert) [![UPDATE](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/evento-update.svg)](#evento-update) [![DELETE](https://raw.githubusercontent.com/RodriguezBJLuis/Practicas_BDN_240480/Practica03/Practica03/assets/diccionario/evento-delete.svg)](#evento-delete) 
+
+<a id="evento-insert"></a>
+
+<details>
+<summary><strong>INSERT · 15 triggers</strong> — consultar tablas y lógica</summary>
+
+| Nombre del Trigger | Tabla Afectada | Evento (INSERT/UPDATE/DELETE) | Momento (BEFORE/AFTER) | Lógica/Propósito |
+| --- | --- | --- | --- | --- |
+| `trg_tb_buyer_orders_after_insert` | `tb_buyer_orders` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_tb_carts_after_insert` | `tb_carts` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_tb_people_after_insert` | `tb_people` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.id`. |
+| `trg_products_after_insert` | `tb_products` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.SKU`. |
+| `trg_tb_user_addresses_after_insert` | `tb_user_addresses` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_users_after_insert` | `tb_users` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.email`. |
+| `trg_categories_after_insert` | `tbc_categories` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.name`, `NEW.status`. |
+| `trg_tbc_payment_methods_types_after_insert` | `tbc_payment_methods_types` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_tbd_address_components_after_insert` | `tbd_address_components` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_tbd_carts_items_after_insert` | `tbd_carts_items` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.cart_ID`, `NEW.provider_ID`, `NEW.product_ID`. |
+| `trg_tbd_order_items_after_insert` | `tbd_order_items` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_product_categories_after_insert` | `tbd_products_categories` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.product_id`, `NEW.category_id`, `NEW.status`. |
+| `trg_product_providers_after_insert` | `tbd_products_users_providers` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.product_id`, `NEW.provider_user_id`, `NEW.status`. |
+| `trg_tbd_user_payment_methods_after_insert` | `tbd_user_payment_methods` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.ID`. |
+| `trg_tbd_users_wishlist_products_after_insert` | `tbd_users_wishlist_products` | INSERT | AFTER | Traza el alta en tb_logs, con USER() y descripción construida a partir de `NEW.user_ID`, `NEW.product_ID`. |
+
+[↑ Cambiar operación](#triggers)
+
+</details>
+
+<a id="evento-update"></a>
+
+<details>
+<summary><strong>UPDATE · 15 triggers</strong> — consultar tablas y lógica</summary>
+
+| Nombre del Trigger | Tabla Afectada | Evento (INSERT/UPDATE/DELETE) | Momento (BEFORE/AFTER) | Lógica/Propósito |
+| --- | --- | --- | --- | --- |
+| `trg_tb_buyer_orders_after_update` | `tb_buyer_orders` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_tb_carts_after_update` | `tb_carts` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_tb_people_after_update` | `tb_people` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `OLD.id`. |
+| `trg_products_after_update` | `tb_products` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.SKU`, `NEW.current_price`. |
+| `trg_tb_user_addresses_after_update` | `tb_user_addresses` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_users_after_update` | `tb_users` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.id`. |
+| `trg_categories_after_update` | `tbc_categories` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.name`, `OLD.status`, `NEW.status`. |
+| `trg_tbc_payment_methods_types_after_update` | `tbc_payment_methods_types` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_tbd_address_components_after_update` | `tbd_address_components` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_tbd_carts_items_after_update` | `tbd_carts_items` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.cart_ID`, `NEW.provider_ID`, `NEW.product_ID`, `OLD.cart_ID`, `OLD.provider_ID`, `OLD.product_ID`. |
+| `trg_tbd_order_items_after_update` | `tbd_order_items` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_product_categories_after_update` | `tbd_products_categories` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.product_id`, `NEW.category_id`, `OLD.status`, `NEW.status`. |
+| `trg_product_providers_after_update` | `tbd_products_users_providers` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.id`, `NEW.product_id`, `NEW.provider_user_id`, `OLD.status`, `NEW.status`. |
+| `trg_tbd_user_payment_methods_after_update` | `tbd_user_payment_methods` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.ID`, `OLD.ID`. |
+| `trg_tbd_users_wishlist_products_after_update` | `tbd_users_wishlist_products` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.user_ID`, `NEW.product_ID`, `OLD.user_ID`, `OLD.product_ID`. |
+
+[↑ Cambiar operación](#triggers)
+
+</details>
+
+<a id="evento-delete"></a>
+
+<details>
+<summary><strong>DELETE · 15 triggers</strong> — consultar tablas y lógica</summary>
+
+| Nombre del Trigger | Tabla Afectada | Evento (INSERT/UPDATE/DELETE) | Momento (BEFORE/AFTER) | Lógica/Propósito |
+| --- | --- | --- | --- | --- |
+| `trg_tb_buyer_orders_after_delete` | `tb_buyer_orders` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_tb_carts_after_delete` | `tb_carts` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_tb_people_after_delete` | `tb_people` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.id`. No realiza baja lógica. |
+| `trg_products_after_delete` | `tb_products` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.SKU`. No realiza baja lógica. |
+| `trg_tb_user_addresses_after_delete` | `tb_user_addresses` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_users_after_delete` | `tb_users` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.id`. No realiza baja lógica. |
+| `trg_categories_after_delete` | `tbc_categories` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.id`, `OLD.name`, `OLD.status`. No realiza baja lógica. |
+| `trg_tbc_payment_methods_types_after_delete` | `tbc_payment_methods_types` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_tbd_address_components_after_delete` | `tbd_address_components` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_tbd_carts_items_after_delete` | `tbd_carts_items` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.cart_ID`, `OLD.provider_ID`, `OLD.product_ID`. No realiza baja lógica. |
+| `trg_tbd_order_items_after_delete` | `tbd_order_items` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_product_categories_after_delete` | `tbd_products_categories` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.id`, `OLD.product_id`, `OLD.category_id`, `OLD.status`. No realiza baja lógica. |
+| `trg_product_providers_after_delete` | `tbd_products_users_providers` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.id`, `OLD.product_id`, `OLD.provider_user_id`, `OLD.status`. No realiza baja lógica. |
+| `trg_tbd_user_payment_methods_after_delete` | `tbd_user_payment_methods` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.ID`. No realiza baja lógica. |
+| `trg_tbd_users_wishlist_products_after_delete` | `tbd_users_wishlist_products` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.user_ID`, `OLD.product_ID`. No realiza baja lógica. |
+
+[↑ Cambiar operación](#triggers)
+
+</details>
+
+<details>
+<summary><strong>Inventario conjunto · 45 triggers</strong> — abrir la tabla resumen completa</summary>
 
 | Nombre del Trigger | Tabla Afectada | Evento (INSERT/UPDATE/DELETE) | Momento (BEFORE/AFTER) | Lógica/Propósito |
 | --- | --- | --- | --- | --- |
@@ -609,6 +929,10 @@ Todos los triggers son **FOR EACH ROW** y se ejecutan **AFTER**. Cada uno insert
 | `trg_tbd_users_wishlist_products_after_update` | `tbd_users_wishlist_products` | UPDATE | AFTER | Traza la modificación en tb_logs, con USER() y descripción construida a partir de `NEW.user_ID`, `NEW.product_ID`, `OLD.user_ID`, `OLD.product_ID`. |
 | `trg_tbd_users_wishlist_products_after_delete` | `tbd_users_wishlist_products` | DELETE | AFTER | Traza la eliminación física en tb_logs, con USER() y descripción construida a partir de `OLD.user_ID`, `OLD.product_ID`. No realiza baja lógica. |
 
+</details>
+
+<a id="verificacion"></a>
+
 ### Verificación reproducible
 
 Estas consultas permiten contrastar el documento con el servidor sin modificar datos.
@@ -635,3 +959,334 @@ ORDER BY EVENT_OBJECT_TABLE, EVENT_MANIPULATION;
 ```
 
 Resultado esperado al corte: **16 tablas**, **128 columnas** y **45 triggers** (15 INSERT, 15 UPDATE y 15 DELETE).
+
+---
+
+## Anexo · Modelo físico DBML
+
+<details>
+<summary><strong>Consultar el código completo del modelo</strong> · 16 tablas y relaciones</summary>
+
+```dbml
+Project db_test {
+  database_type: 'MySQL'
+  Note: 'Modelo fisico consultado el 2026-10-21: 16 tablas y 45 triggers. Solo tb_users tiene deleted_at. Se conservan nombres, tipos e indices reales; no se agregan tablas de pagos inexistentes.'
+}
+
+Enum fulfillment_status {
+  Pending
+  Accepted
+  Preparing
+  Sent
+  Delivered
+  Canceled
+  Returned
+}
+
+// SEGURIDAD Y PERSONAS
+
+Table tb_users {
+  id int [pk, increment, not null]
+  email varchar(100) [null]
+  nickname varchar(50) [null]
+  password varchar(255) [null]
+  status varchar(20) [null, default: 'active']
+  creation_date datetime [null, default: `CURRENT_TIMESTAMP`]
+  last_date datetime [null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+  last_log datetime [null]
+  deleted_at datetime [null]
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_people {
+  id int [pk, increment, not null]
+  user_id int [not null]
+  first_name varchar(100) [not null]
+  last_name varchar(100) [not null]
+  second_last_name varchar(100) [null]
+  birth_date date [null]
+  gender varchar(30) [null]
+  phone varchar(25) [null]
+  nationality varchar(80) [null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_id [unique, name: 'uk_people_user']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_logs {
+  id int [pk, increment, not null]
+  table_affected varchar(50) [null]
+  operation varchar(20) [null]
+  db_user varchar(100) [null]
+  description text [null]
+  operation_date datetime [null, default: `CURRENT_TIMESTAMP`]
+  status tinyint [null, default: 1]
+
+  Note: 'Sin triggers; recibe los registros de auditoria'
+}
+
+// CATALOGO Y PROVEEDORES
+
+Table tbc_categories {
+  id int [pk, increment, not null]
+  name varchar(100) [not null]
+  description text [null]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    name [unique, name: 'uq_tbc_categories_name']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tb_products {
+  id int [pk, increment, not null]
+  SKU varchar(20) [not null]
+  nombre_producto varchar(150) [not null]
+  descripcion text [null]
+  current_price decimal(10,2) [not null]
+  current_stock int [not null]
+  status tinyint [not null]
+  creation_date datetime [not null]
+  last_update datetime [not null]
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_products_categories {
+  id int [pk, increment, not null]
+  product_id int [not null]
+  category_id int [not null]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    category_id [name: 'idx_product_categories_category']
+    (product_id, category_id) [unique, name: 'uq_product_category']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_products_users_providers {
+  id int [pk, increment, not null]
+  product_id int [not null]
+  provider_user_id int [not null]
+  provider_sku varchar(100) [null]
+  unit_cost decimal(10,2) [null]
+  lead_time_days "smallint unsigned" [null]
+  is_primary tinyint [not null, default: 0]
+  status tinyint [not null, default: 1]
+  created_at datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at datetime [not null, default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    provider_user_id [name: 'idx_product_providers_user']
+    (product_id, provider_user_id) [unique, name: 'uq_product_provider']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// PEDIDOS
+
+Table tb_buyer_orders {
+  ID "int unsigned" [pk, increment, not null]
+  seller_ID int [not null]
+  subtotal decimal(12,2) [not null, default: 0.00]
+  shipping_cost decimal(12,2) [not null, default: 0.00]
+  fulfillment_status fulfillment_status [not null, default: 'Pending']
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    seller_ID [name: 'seller_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: tb_buyer_orders_chk_1: (`subtotal` >= 0); tb_buyer_orders_chk_2: (`shipping_cost` >= 0)'
+}
+
+Table tbd_order_items {
+  ID "int unsigned" [pk, increment, not null]
+  seller_order_ID "int unsigned" [not null]
+  product_ID int [not null]
+  provider_ID int [not null]
+  product_name varchar(255) [not null]
+  quantity "int unsigned" [not null]
+  unit_price decimal(12,2) [not null]
+  subtotal decimal(12,2) [null, note: 'GENERATED ALWAYS AS ((`quantity` * `unit_price`)) STORED']
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    product_ID [name: 'product_ID']
+    provider_ID [name: 'provider_ID']
+    seller_order_ID [name: 'seller_order_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: tbd_order_items_chk_1: (`quantity` > 0); tbd_order_items_chk_2: (`unit_price` >= 0)'
+}
+
+// CARRITOS Y DESEOS
+
+Table tb_carts {
+  ID "int unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  status bit(1) [null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_ID [unique, name: 'uk_cart_user']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_carts_items {
+  cart_ID "int unsigned" [not null]
+  provider_ID int [not null]
+  product_ID int [not null]
+  quantity "int unsigned" [not null, default: 1]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (cart_ID, provider_ID, product_ID) [pk]
+    product_ID [name: 'product_ID']
+    provider_ID [name: 'provider_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: chk_cart_quantity: (`quantity` > 0)'
+}
+
+Table tbd_users_wishlist_products {
+  user_ID int [not null]
+  product_ID int [not null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [not null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    product_ID [name: 'fk_products3']
+    (user_ID, product_ID) [pk]
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// DIRECCIONES
+
+Table tb_user_addresses {
+  ID "bigint unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  address_label varchar(100) [not null]
+  recipient_name varchar(150) [null]
+  recipient_phone varchar(25) [null]
+  delivery_instructions varchar(500) [null]
+  latitude decimal(10,7) [null]
+  longitude decimal(10,7) [null]
+  is_default tinyint(1) [not null, default: 0]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    user_ID [name: 'idx_user_addresses']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria; CHECK: chk_coordinates: (((`latitude` is null) and (`longitude` is null)) or ((`latitude` is not null) and (`longitude` is not null))); chk_latitude: (`latitude` between -(90) and 90); chk_longitude: (`longitude` between -(180) and 180)'
+}
+
+Table tbd_address_components {
+  ID "bigint unsigned" [pk, increment, not null]
+  address_ID "bigint unsigned" [not null]
+  value varchar(255) [not null]
+  component_type varchar(50) [not null]
+  status bit(1) [not null, default: `b'1'`]
+  address_sup_ID "bigint unsigned" [null]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    (address_ID, address_sup_ID) [name: 'idx_address_parent']
+    (address_ID, ID) [unique, name: 'uk_address_component']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// METODOS DE PAGO
+
+Table tbc_payment_methods_types {
+  ID "int unsigned" [pk, increment, not null]
+  code varchar(30) [not null]
+  description text [not null]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    code [unique, name: 'code_UNIQUE']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+Table tbd_user_payment_methods {
+  ID "bigint unsigned" [pk, increment, not null]
+  user_ID int [not null]
+  payment_method_type_ID "int unsigned" [not null]
+  provider varchar(60) [not null]
+  provider_method_ref varchar(255) [not null]
+  label varchar(100) [null]
+  last_four char(4) [null]
+  is_default tinyint(1) [not null, default: 0]
+  status bit(1) [not null, default: `b'1'`]
+  creation_date datetime [not null, default: `CURRENT_TIMESTAMP`]
+  last_update datetime [null, note: 'ON UPDATE CURRENT_TIMESTAMP']
+
+  indexes {
+    payment_method_type_ID [name: 'payment_method_type_ID']
+    (provider, provider_method_ref) [unique, name: 'uk_provider_method']
+    user_ID [name: 'user_ID']
+  }
+
+  Note: 'Tiene 3 triggers de auditoria'
+}
+
+// RELACIONES FISICAS (incluida la referencia compuesta de direcciones)
+
+Ref tb_buyer_orders_ibfk_1: tb_buyer_orders.seller_ID > tb_users.id [delete: no action, update: no action]
+Ref tb_carts_ibfk_1: tb_carts.user_ID - tb_users.id [delete: no action, update: no action]
+Ref fk_people_user: tb_people.user_id - tb_users.id [delete: restrict, update: cascade]
+Ref fk_addresses_users: tb_user_addresses.user_ID > tb_users.id [delete: no action, update: no action]
+Ref fk_component_address: tbd_address_components.address_ID > tb_user_addresses.ID [delete: restrict, update: no action]
+Ref fk_component_parent: tbd_address_components.(address_ID, address_sup_ID) > tbd_address_components.(address_ID, ID) [delete: restrict, update: no action]
+Ref tbd_carts_items_ibfk_1: tbd_carts_items.cart_ID > tb_carts.ID [delete: no action, update: no action]
+Ref tbd_carts_items_ibfk_2: tbd_carts_items.provider_ID > tbd_products_users_providers.provider_user_id [delete: no action, update: no action]
+Ref tbd_carts_items_ibfk_3: tbd_carts_items.product_ID > tbd_products_users_providers.product_id [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_1: tbd_order_items.seller_order_ID > tb_buyer_orders.ID [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_2: tbd_order_items.product_ID > tbd_products_users_providers.product_id [delete: no action, update: no action]
+Ref tbd_order_items_ibfk_3: tbd_order_items.provider_ID > tbd_products_users_providers.provider_user_id [delete: no action, update: no action]
+Ref fk_product_categories_category: tbd_products_categories.category_id > tbc_categories.id [delete: restrict, update: cascade]
+Ref fk_product_categories_product: tbd_products_categories.product_id > tb_products.id [delete: restrict, update: cascade]
+Ref fk_product_providers_product: tbd_products_users_providers.product_id > tb_products.id [delete: restrict, update: cascade]
+Ref fk_product_providers_user: tbd_products_users_providers.provider_user_id > tb_users.id [delete: restrict, update: cascade]
+Ref tbd_user_payment_methods_ibfk_1: tbd_user_payment_methods.user_ID > tb_users.id [delete: no action, update: no action]
+Ref tbd_user_payment_methods_ibfk_2: tbd_user_payment_methods.payment_method_type_ID > tbc_payment_methods_types.ID [delete: no action, update: no action]
+Ref fk_products3: tbd_users_wishlist_products.product_ID > tb_products.id [delete: no action, update: no action]
+Ref fk_user2: tbd_users_wishlist_products.user_ID > tb_users.id [delete: no action, update: no action]
+```
+
+</details>
