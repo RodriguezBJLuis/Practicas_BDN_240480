@@ -1,0 +1,1166 @@
+{
+  "schema_version": 1,
+  "diagram_type": "erd",
+  "meta": {
+    "title": "db_test · 16 tablas y 45 triggers",
+    "locale": "es",
+    "output": "Practica03/diagrama_erd.html",
+    "quality_profile": "standard",
+    "repository": {
+      "url": "https://github.com/RodriguezBJLuis/Practicas_BDN_240480.git",
+      "revision": "55b6c87146c2530036e0a754341ee2417b9bb02b"
+    }
+  },
+  "layout": {
+    "mode": "grid",
+    "gapX": 65,
+    "gapY": 30,
+    "entityW": 330,
+    "rowH": 18
+  },
+  "entities": [
+    {
+      "id": "tb_users",
+      "label": "tb_users",
+      "tag": "Personas",
+      "row": 0,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "nickname",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "password",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_log",
+          "type": "datetime"
+        },
+        {
+          "name": "deleted_at",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 18,
+          "end_line": 30,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_people",
+      "label": "tb_people",
+      "tag": "Personas",
+      "row": 1,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "second_last_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "birth_date",
+          "type": "date"
+        },
+        {
+          "name": "gender",
+          "type": "varchar(30)"
+        },
+        {
+          "name": "phone",
+          "type": "varchar(25)"
+        },
+        {
+          "name": "nationality",
+          "type": "varchar(80)"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 32,
+          "end_line": 51,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_logs",
+      "label": "tb_logs",
+      "tag": "Personas",
+      "row": 2,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "table_affected",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "operation",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "db_user",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "operation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "status",
+          "type": "tinyint"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 53,
+          "end_line": 63,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_products",
+      "label": "tb_products",
+      "tag": "Catálogo",
+      "row": 0,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "SKU",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "nombre_producto",
+          "type": "varchar(150)"
+        },
+        {
+          "name": "descripcion",
+          "type": "text"
+        },
+        {
+          "name": "current_price",
+          "type": "decimal(10,2)"
+        },
+        {
+          "name": "current_stock",
+          "type": "int"
+        },
+        {
+          "name": "status",
+          "type": "tinyint"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 82,
+          "end_line": 94,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbc_categories",
+      "label": "tbc_categories",
+      "tag": "Catálogo",
+      "row": 1,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "key": [
+            "uk"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "tinyint"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 67,
+          "end_line": 80,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_products_categories",
+      "label": "tbd_products_categories",
+      "tag": "Catálogo",
+      "row": 2,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_products.id"
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tbc_categories.id"
+        },
+        {
+          "name": "status",
+          "type": "tinyint"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 96,
+          "end_line": 110,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_products_users_providers",
+      "label": "tbd_products_users_providers",
+      "tag": "Catálogo",
+      "row": 3,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "int",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_products.id"
+        },
+        {
+          "name": "provider_user_id",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "provider_sku",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "unit_cost",
+          "type": "decimal(10,2)"
+        },
+        {
+          "name": "lead_time_days",
+          "type": "smallint unsigned"
+        },
+        {
+          "name": "is_primary",
+          "type": "tinyint"
+        },
+        {
+          "name": "status",
+          "type": "tinyint"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 112,
+          "end_line": 130,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_buyer_orders",
+      "label": "tb_buyer_orders",
+      "tag": "Operaciones",
+      "row": 0,
+      "col": 2,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "int unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "seller_ID",
+          "type": "int",
+          "key": [
+            "fk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "subtotal",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "shipping_cost",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "fulfillment_status",
+          "type": "enum"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 134,
+          "end_line": 149,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_order_items",
+      "label": "tbd_order_items",
+      "tag": "Operaciones",
+      "row": 1,
+      "col": 2,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "int unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "seller_order_ID",
+          "type": "int unsigned",
+          "key": [
+            "fk"
+          ],
+          "references": "tb_buyer_orders.ID"
+        },
+        {
+          "name": "product_ID",
+          "type": "int",
+          "key": [
+            "fk"
+          ],
+          "references": "tbd_products_users_providers.product_id"
+        },
+        {
+          "name": "provider_ID",
+          "type": "int",
+          "key": [
+            "fk"
+          ],
+          "references": "tbd_products_users_providers.provider_user_id"
+        },
+        {
+          "name": "product_name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "quantity",
+          "type": "int unsigned"
+        },
+        {
+          "name": "unit_price",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "subtotal",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 151,
+          "end_line": 169,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_carts",
+      "label": "tb_carts",
+      "tag": "Operaciones",
+      "row": 2,
+      "col": 2,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "int unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "user_ID",
+          "type": "int",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 173,
+          "end_line": 185,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_carts_items",
+      "label": "tbd_carts_items",
+      "tag": "Operaciones",
+      "row": 3,
+      "col": 2,
+      "attributes": [
+        {
+          "name": "cart_ID",
+          "type": "int unsigned",
+          "key": [
+            "pk",
+            "fk"
+          ],
+          "references": "tb_carts.ID"
+        },
+        {
+          "name": "provider_ID",
+          "type": "int",
+          "key": [
+            "pk",
+            "fk"
+          ],
+          "references": "tbd_products_users_providers.provider_user_id"
+        },
+        {
+          "name": "product_ID",
+          "type": "int",
+          "key": [
+            "pk",
+            "fk"
+          ],
+          "references": "tbd_products_users_providers.product_id"
+        },
+        {
+          "name": "quantity",
+          "type": "int unsigned"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 187,
+          "end_line": 201,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_users_wishlist_products",
+      "label": "tbd_users_wishlist_products",
+      "tag": "Deseos",
+      "row": 3,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "user_ID",
+          "type": "int",
+          "key": [
+            "pk",
+            "fk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "product_ID",
+          "type": "int",
+          "key": [
+            "pk",
+            "fk"
+          ],
+          "references": "tb_products.id"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 203,
+          "end_line": 216,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tb_user_addresses",
+      "label": "tb_user_addresses",
+      "tag": "Direcciones",
+      "row": 0,
+      "col": 3,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "bigint unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "user_ID",
+          "type": "int",
+          "key": [
+            "fk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "address_label",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "recipient_name",
+          "type": "varchar(150)"
+        },
+        {
+          "name": "recipient_phone",
+          "type": "varchar(25)"
+        },
+        {
+          "name": "delivery_instructions",
+          "type": "varchar(500)"
+        },
+        {
+          "name": "latitude",
+          "type": "decimal(10,7)"
+        },
+        {
+          "name": "longitude",
+          "type": "decimal(10,7)"
+        },
+        {
+          "name": "is_default",
+          "type": "tinyint(1)"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 220,
+          "end_line": 239,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_address_components",
+      "label": "tbd_address_components",
+      "tag": "Direcciones",
+      "row": 1,
+      "col": 3,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "bigint unsigned",
+          "key": [
+            "pk",
+            "uk"
+          ]
+        },
+        {
+          "name": "address_ID",
+          "type": "bigint unsigned",
+          "key": [
+            "fk",
+            "uk"
+          ],
+          "references": "tb_user_addresses.ID"
+        },
+        {
+          "name": "value",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "component_type",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "address_sup_ID",
+          "type": "bigint unsigned",
+          "key": [
+            "fk"
+          ],
+          "references": "tbd_address_components.ID"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 241,
+          "end_line": 257,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbc_payment_methods_types",
+      "label": "tbc_payment_methods_types",
+      "tag": "Pagos",
+      "row": 2,
+      "col": 3,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "int unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "code",
+          "type": "varchar(30)",
+          "key": [
+            "uk"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 261,
+          "end_line": 274,
+          "label": "Definición física"
+        }
+      ]
+    },
+    {
+      "id": "tbd_user_payment_methods",
+      "label": "tbd_user_payment_methods",
+      "tag": "Pagos",
+      "row": 3,
+      "col": 3,
+      "attributes": [
+        {
+          "name": "ID",
+          "type": "bigint unsigned",
+          "key": [
+            "pk"
+          ]
+        },
+        {
+          "name": "user_ID",
+          "type": "int",
+          "key": [
+            "fk"
+          ],
+          "references": "tb_users.id"
+        },
+        {
+          "name": "payment_method_type_ID",
+          "type": "int unsigned",
+          "key": [
+            "fk"
+          ],
+          "references": "tbc_payment_methods_types.ID"
+        },
+        {
+          "name": "provider",
+          "type": "varchar(60)",
+          "key": [
+            "uk"
+          ]
+        },
+        {
+          "name": "provider_method_ref",
+          "type": "varchar(255)",
+          "key": [
+            "uk"
+          ]
+        },
+        {
+          "name": "label",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "last_four",
+          "type": "char(4)"
+        },
+        {
+          "name": "is_default",
+          "type": "tinyint(1)"
+        },
+        {
+          "name": "status",
+          "type": "bit(1)"
+        },
+        {
+          "name": "creation_date",
+          "type": "datetime"
+        },
+        {
+          "name": "last_update",
+          "type": "datetime"
+        }
+      ],
+      "sources": [
+        {
+          "path": "Practica03/db_test.dbml",
+          "line": 276,
+          "end_line": 296,
+          "label": "Definición física"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "tb_buyer_orders_ibfk_1",
+      "from": "tb_buyer_orders",
+      "to": "tb_users",
+      "label": "seller_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tb_carts_ibfk_1",
+      "from": "tb_carts",
+      "to": "tb_users",
+      "label": "user_ID",
+      "fromCardinality": "one",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_people_user",
+      "from": "tb_people",
+      "to": "tb_users",
+      "label": "user_id",
+      "fromCardinality": "one",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_addresses_users",
+      "from": "tb_user_addresses",
+      "to": "tb_users",
+      "label": "user_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_component_address",
+      "from": "tbd_address_components",
+      "to": "tb_user_addresses",
+      "label": "address_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_carts_items_ibfk_1",
+      "from": "tbd_carts_items",
+      "to": "tb_carts",
+      "label": "cart_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_carts_items_ibfk_2",
+      "from": "tbd_carts_items",
+      "to": "tbd_products_users_providers",
+      "label": "provider_ID",
+      "fromCardinality": "many",
+      "toCardinality": "many",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_carts_items_ibfk_3",
+      "from": "tbd_carts_items",
+      "to": "tbd_products_users_providers",
+      "label": "product_ID",
+      "fromCardinality": "many",
+      "toCardinality": "many",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_order_items_ibfk_1",
+      "from": "tbd_order_items",
+      "to": "tb_buyer_orders",
+      "label": "seller_order_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_order_items_ibfk_2",
+      "from": "tbd_order_items",
+      "to": "tbd_products_users_providers",
+      "label": "product_ID",
+      "fromCardinality": "many",
+      "toCardinality": "many",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_order_items_ibfk_3",
+      "from": "tbd_order_items",
+      "to": "tbd_products_users_providers",
+      "label": "provider_ID",
+      "fromCardinality": "many",
+      "toCardinality": "many",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_product_categories_category",
+      "from": "tbd_products_categories",
+      "to": "tbc_categories",
+      "label": "category_id",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_product_categories_product",
+      "from": "tbd_products_categories",
+      "to": "tb_products",
+      "label": "product_id",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_product_providers_product",
+      "from": "tbd_products_users_providers",
+      "to": "tb_products",
+      "label": "product_id",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_product_providers_user",
+      "from": "tbd_products_users_providers",
+      "to": "tb_users",
+      "label": "provider_user_id",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_user_payment_methods_ibfk_1",
+      "from": "tbd_user_payment_methods",
+      "to": "tb_users",
+      "label": "user_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "tbd_user_payment_methods_ibfk_2",
+      "from": "tbd_user_payment_methods",
+      "to": "tbc_payment_methods_types",
+      "label": "payment_method_type_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_products3",
+      "from": "tbd_users_wishlist_products",
+      "to": "tb_products",
+      "label": "product_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    },
+    {
+      "id": "fk_user2",
+      "from": "tbd_users_wishlist_products",
+      "to": "tb_users",
+      "label": "user_ID",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "fromOptional": true,
+      "toOptional": false
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Modelo físico completo",
+      "items": [
+        "16 tablas y 128 columnas. Cada tabla de negocio tiene 3 triggers de auditoría; tb_logs recibe los eventos.",
+        "Fuente: db_test.dbml y diccionario verificados el 21 de octubre de 2026. No se muestran conteos de registros desactualizados.",
+        "fulfillment_status: enum('Pending','Accepted','Preparing','Sent','Delivered','Canceled','Returned')."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Integridad y cardinalidades",
+      "items": [
+        "Las referencias de líneas a productos/proveedores usan índices no únicos y separados: cada valor puede coincidir con varias ofertas. No garantizan una pareja producto/proveedor válida.",
+        "La relación de componentes de dirección usa la clave compuesta (address_ID, address_sup_ID).",
+        "Solo tb_users tiene deleted_at. Los triggers son de trazabilidad AFTER, no de baja lógica."
+      ]
+    }
+  ]
+}
